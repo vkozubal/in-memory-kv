@@ -124,8 +124,7 @@ func errorResponseFrom(method RequestType, request KVRequest, err error) KVRepon
 
 func main() {
 	http.HandleFunc("/", httpHandler)
-	err := http.ListenAndServe(":80", nil)
-	if err != nil {
+	if err := http.ListenAndServe(":80", nil); err != nil {
 		fmt.Printf("Couldn't start a server %#v\n", err)
 	}
 }
