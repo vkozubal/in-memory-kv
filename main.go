@@ -6,6 +6,8 @@ import (
 	"github.com/vkozubal/in-memory-kv/store"
 	"io/ioutil"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type RequestType string
@@ -69,7 +71,7 @@ func writeResponse(err error, response KVReponse, w http.ResponseWriter) error {
 		return err
 	}
 
-	fmt.Printf("response: %#v\n", response)
+	log.Debug("response: %#v\n", response)
 	return nil
 }
 
@@ -82,7 +84,7 @@ func parseRequest(r *http.Request) (KVRequest, error) {
 	if err = json.Unmarshal(body, &request); err != nil {
 		return KVRequest{}, err
 	}
-	fmt.Printf("requst: %#v\n", request)
+	log.Debug("requst: %#v\n", request)
 	return request, err
 }
 
