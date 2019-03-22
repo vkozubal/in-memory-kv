@@ -8,6 +8,29 @@ import (
 	"net/http"
 )
 
+type RequestType string
+
+const (
+	GET    RequestType = "GET"
+	SET    RequestType = "SET"
+	DELETE RequestType = "DELETE"
+	EXISTS RequestType = "EXISTS"
+)
+
+type KVRequest struct {
+	Key    string      `json:"key,omitempty"`
+	Value  string      `json:"value,omitempty"`
+	Method RequestType `json:"method,omitempty"`
+}
+
+type KVReponse struct {
+	Key    string      `json:"key,omitempty"`
+	Value  string      `json:"value,omitempty"`
+	Method RequestType `json:"method,omitempty"`
+	Result string      `json:"result,omitempty"`
+	Error  string      `json:"error,omitempty"`
+}
+
 var registry store.Registry
 
 func init() {
@@ -103,27 +126,4 @@ func main() {
 	if err != nil {
 		fmt.Printf("Couldn't start a server %#v\n", err)
 	}
-}
-
-type RequestType string
-
-const (
-	GET    RequestType = "GET"
-	SET    RequestType = "SET"
-	DELETE RequestType = "DELETE"
-	EXISTS RequestType = "EXISTS"
-)
-
-type KVRequest struct {
-	Key    string      `json:"key,omitempty"`
-	Value  string      `json:"value,omitempty"`
-	Method RequestType `json:"method,omitempty"`
-}
-
-type KVReponse struct {
-	Key    string      `json:"key,omitempty"`
-	Value  string      `json:"value,omitempty"`
-	Method RequestType `json:"method,omitempty"`
-	Result string      `json:"result,omitempty"`
-	Error  string      `json:"error,omitempty"`
 }
