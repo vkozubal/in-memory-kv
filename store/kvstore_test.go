@@ -15,7 +15,7 @@ func TestCanSetGetKeyPositive(t *testing.T) {
 		t.Errorf("Should be able to Get key.")
 	}
 	if val != "v" {
-		t.Errorf("Should fetch the same value")
+		t.Errorf("Should fetch the same value.")
 	}
 }
 
@@ -23,7 +23,7 @@ func TestSetFailOnEmptyKey(t *testing.T) {
 	r := Registry{}
 	err := r.Set("", "valid value")
 	if err == nil || err.Error() != "empty value not allowed" {
-		t.Errorf("Should fail on empty key")
+		t.Errorf("Should fail on empty key.")
 	}
 }
 
@@ -31,7 +31,7 @@ func TestSetKeyIsTooBig(t *testing.T) {
 	r := Registry{}
 	err := r.Set("exceeding length k", "valid value")
 	if err == nil || err.Error() != "key too long" {
-		t.Errorf("Should fail on long key")
+		t.Errorf("Should fail on long key.")
 	}
 }
 
@@ -41,5 +41,36 @@ func TestSetValueIsTooLong(t *testing.T) {
 	err := r.Set("max len key pam ", tooLongValue)
 	if err == nil || err.Error() != "value too long" {
 		t.Errorf("Should fail on long key")
+	}
+}
+
+func TestDeleteNotFound(t *testing.T) {
+	r := Registry{}
+	err := r.Delete("KEY")
+	if err == nil || err.Error() != "not found" {
+		t.Errorf("Should fail on non existent key.")
+	}
+}
+
+func TestDeletePositive(t *testing.T) {
+	r := Registry{}
+	err := r.Set("KEY", "v")
+	if err != nil {
+		t.Fail()
+	}
+
+	found := r.Exists("KEY")
+	if !found {
+		t.Errorf("Key should exist.")
+	}
+
+	err = r.Delete("KEY")
+	if err != nil {
+		t.Errorf("Should fail on non existent key.")
+	}
+
+	found = r.Exists("KEY")
+	if found {
+		t.Errorf("Key should not exist.")
 	}
 }

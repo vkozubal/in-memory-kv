@@ -30,8 +30,8 @@ func (r *Registry) Get(key string) (string, error) {
 }
 
 func (r *Registry) Delete(key string) error {
-	if r.Exists(key) {
-		// todo finish
+	if !r.Exists(key) {
+		return fmt.Errorf("not found")
 	}
 	r.reg.Delete(key)
 	return nil
