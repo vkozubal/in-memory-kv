@@ -52,25 +52,36 @@ func TestDeleteNotFound(t *testing.T) {
 	}
 }
 
+func TestExists(t *testing.T) {
+	r := Registry{}
+	if found := r.Exists("test_key"); found {
+		t.Errorf("Test key shouldn't exist.")
+	}
+
+	if err := r.Set("test_key", "1"); err != nil {
+		t.Errorf("Can't set key.")
+	}
+
+	if found := r.Exists("test_key"); !found {
+		t.Errorf("Test key should exist.")
+	}
+}
+
 func TestDeletePositive(t *testing.T) {
 	r := Registry{}
-	err := r.Set("KEY", "v")
-	if err != nil {
+	if err := r.Set("KEY", "v"); err != nil {
 		t.Fail()
 	}
 
-	found := r.Exists("KEY")
-	if !found {
+	if found := r.Exists("KEY"); !found {
 		t.Errorf("Key should exist.")
 	}
 
-	err = r.Delete("KEY")
-	if err != nil {
+	if err := r.Delete("KEY"); err != nil {
 		t.Errorf("Should fail on non existent key.")
 	}
 
-	found = r.Exists("KEY")
-	if found {
+	if found := r.Exists("KEY"); found {
 		t.Errorf("Key should not exist.")
 	}
 }
