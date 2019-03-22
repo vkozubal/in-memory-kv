@@ -11,11 +11,14 @@ import (
 var registry store.Registry
 
 func init() {
-	registry = store.Registry{}
+	var err error
+	if registry, err = store.NewRegistry(); err != nil {
+		panic(err)
+	}
 }
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {
-	err, request := parseRequest(r)
+	request, err := parseRequest(r)
 	if err != nil {
 		errMessage := fmt.Sprintf("Couldn't parse JSON format. %#v\n", err)
 		data := KVReponse{Error: errMessage}
@@ -47,17 +50,17 @@ func writeResponse(err error, response KVReponse, w http.ResponseWriter) error {
 	return nil
 }
 
-func parseRequest(r *http.Request) (error, KVRequest) {
+func parseRequest(r *http.Request) (KVRequest, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return err, KVRequest{}
+		return KVRequest{}, err
 	}
 	request := KVRequest{}
 	if err = json.Unmarshal(body, &request); err != nil {
-		return err, KVRequest{}
+		return KVRequest{}, err
 	}
 	fmt.Printf("requst: %#v\n", request)
-	return err, request
+	return request, err
 }
 
 func handleRequest(request KVRequest) KVReponse {
