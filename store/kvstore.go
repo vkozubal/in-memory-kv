@@ -10,8 +10,7 @@ type Registry struct {
 }
 
 func (r *Registry) Set(key string, value string) error {
-	err := checkKey(key)
-	if err != nil {
+	if err := checkKey(key); err != nil {
 		return err
 	}
 	if len(value) > 512 {

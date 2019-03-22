@@ -15,30 +15,49 @@ func init() {
 }
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+	err, request := parseRequest(r)
 	if err != nil {
-		fmt.Printf("Caught an error %#v\n", err)
-	}
-	request := KVRequest{}
-	err = json.Unmarshal(body, &request)
-	if err != nil {
-		fmt.Printf("Caught an error %#v\n", err)
-	}
+		errMessage := fmt.Sprintf("Couldn't parse JSON format. %#v\n", err)
+		data := KVReponse{Error: errMessage}
 
-	fmt.Printf("requst: %#v\n", request)
+		if err = writeResponse(err, data, w); err != nil {
+			panic(err)
+		}
+		return
+	}
 
 	response := handleRequest(request)
+	err = writeResponse(err, response, w)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func writeResponse(err error, response KVReponse, w http.ResponseWriter) error {
 	bytes, err := json.Marshal(response)
 	if err != nil {
-		fmt.Printf("Caught an error %#v\n", err)
+		return err
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		return err
 	}
 
 	fmt.Printf("response: %#v\n", response)
+	return nil
+}
 
-	_, err = w.Write(bytes)
+func parseRequest(r *http.Request) (error, KVRequest) {
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Printf("Caught an error %#v\n", err)
+		return err, KVRequest{}
 	}
+	request := KVRequest{}
+	if err = json.Unmarshal(body, &request); err != nil {
+		return err, KVRequest{}
+	}
+	fmt.Printf("requst: %#v\n", request)
+	return err, request
 }
 
 func handleRequest(request KVRequest) KVReponse {
@@ -68,7 +87,7 @@ func handleRequest(request KVRequest) KVReponse {
 		return KVReponse{Method: EXISTS, Key: request.Key, Error: "not found"}
 	}
 
-	return KVReponse{} // todo handle
+	return KVReponse{Method: request.Method, Key: request.Key, Error: "method not found"}
 }
 
 func errorResponseFrom(method RequestType, request KVRequest, err error) KVReponse {
@@ -93,15 +112,15 @@ const (
 )
 
 type KVRequest struct {
-	Key    string      `json:"key"`
-	Value  string      `json:"value"`
-	Method RequestType `json:"method"`
+	Key    string      `json:"key,omitempty"`
+	Value  string      `json:"value,omitempty"`
+	Method RequestType `json:"method,omitempty"`
 }
 
 type KVReponse struct {
-	Key    string      `json:"key"`
-	Method RequestType `json:"method"`
-	Result string      `json:"result"`
-	Error  string      `json:"error"`
-	Value  string      `json:"value"`
+	Key    string      `json:"key,omitempty"`
+	Value  string      `json:"value,omitempty"`
+	Method RequestType `json:"method,omitempty"`
+	Result string      `json:"result,omitempty"`
+	Error  string      `json:"error,omitempty"`
 }
