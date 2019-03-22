@@ -85,3 +85,24 @@ func TestDeletePositive(t *testing.T) {
 		t.Errorf("Key should not exist.")
 	}
 }
+
+func TestStoreSizeIsMaintained(t *testing.T) {
+	r := registry{maxSize: 1}
+	if err := r.Set("1", "v1"); err != nil {
+		t.Errorf("Should store. Capasity is not reached.")
+	}
+
+	if err := r.Set("2", "v2"); err == nil {
+		t.Errorf("Capasity should be reached.")
+	}
+
+	// delete key
+	if err := r.Delete("1"); err != nil {
+		t.Errorf("Should be deleted.")
+	}
+
+	// insert again
+	if err := r.Set("1", "v1"); err != nil {
+		t.Errorf("Should store. Capasity is not reached.")
+	}
+}

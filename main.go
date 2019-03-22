@@ -37,7 +37,7 @@ var registry store.Registry
 
 func init() {
 	var err error
-	if registry, err = store.NewRegistry(); err != nil {
+	if registry, err = store.NewRegistry(1024); err != nil {
 		panic(err)
 	}
 }
@@ -84,7 +84,7 @@ func parseRequest(r *http.Request) (KVRequest, error) {
 	if err = json.Unmarshal(body, &request); err != nil {
 		return KVRequest{}, err
 	}
-	log.Debug("requst: %#v\n", request)
+	log.Debug("request: %#v\n", request)
 	return request, err
 }
 

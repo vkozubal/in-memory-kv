@@ -2,11 +2,13 @@ package store
 
 import (
 	"fmt"
+	"github.com/stefankopieczek/gossip/log"
 	"sync"
+	"sync/atomic"
 )
 
-func NewRegistry() (Registry, error) {
-	return &registry{}, nil
+func NewRegistry(size uint64) (Registry, error) {
+	return &registry{maxSize: size, currentSize: 0}, nil
 }
 
 type Registry interface {
@@ -17,10 +19,17 @@ type Registry interface {
 }
 
 type registry struct {
-	reg sync.Map
+	reg         sync.Map
+	maxSize     uint64
+	currentSize uint64
 }
 
 func (r *registry) Set(key string, value string) error {
+	if count := r.getCurrentSize(); count > r.maxSize-1 {
+		log.Debug("Reached maximum store capacity `%d`.", r.maxSize)
+		return fmt.Errorf("Reached store max size %d.", r.maxSize)
+	}
+
 	if err := checkKey(key); err != nil {
 		return err
 	}
@@ -28,6 +37,7 @@ func (r *registry) Set(key string, value string) error {
 		return fmt.Errorf("value too long")
 	}
 	r.reg.Store(key, value)
+	r.increaseSize()
 	return nil
 }
 
@@ -44,7 +54,20 @@ func (r *registry) Delete(key string) error {
 		return fmt.Errorf("not found")
 	}
 	r.reg.Delete(key)
+	r.decreaseSize()
 	return nil
+}
+
+func (r *registry) decreaseSize() {
+	atomic.AddUint64(&r.currentSize, ^uint64(1-1))
+}
+
+func (r *registry) increaseSize() uint64 {
+	return atomic.AddUint64(&r.currentSize, 1)
+}
+
+func (r *registry) getCurrentSize() uint64 {
+	return atomic.LoadUint64(&r.currentSize)
 }
 
 func (r *registry) Exists(key string) bool {
