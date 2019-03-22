@@ -10,8 +10,12 @@ type Registry struct {
 }
 
 func (r *Registry) Set(key string, value string) error {
-	if len(value) > 1024 {
-		return fmt.Errorf("key too long")
+	err := checkKey(key)
+	if err != nil {
+		return err
+	}
+	if len(value) > 512 {
+		return fmt.Errorf("value too long")
 	}
 	r.reg.Store(key, value)
 	return nil
@@ -27,7 +31,7 @@ func (r *Registry) Get(key string) (string, error) {
 
 func (r *Registry) Delete(key string) error {
 	if r.Exists(key) {
-
+		// todo finish
 	}
 	r.reg.Delete(key)
 	return nil
@@ -36,4 +40,15 @@ func (r *Registry) Delete(key string) error {
 func (r *Registry) Exists(key string) bool {
 	_, found := r.reg.Load(key)
 	return found
+}
+
+func checkKey(key string) error {
+	if len(key) == 0 {
+		return fmt.Errorf("empty value not allowed")
+	}
+
+	if len(key) > 16 {
+		return fmt.Errorf("key too long")
+	}
+	return nil
 }
