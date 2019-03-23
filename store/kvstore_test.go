@@ -6,8 +6,7 @@ import (
 
 func TestCanSetGetKeyPositive(t *testing.T) {
 	r := registry{}
-	err := r.Set("key", "v")
-	if err != nil {
+	if err := r.Set("key", "v"); err != nil {
 		t.Errorf("Should be able to Set key.")
 	}
 	val, err := r.Get("key")

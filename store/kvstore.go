@@ -2,7 +2,7 @@ package store
 
 import (
 	"fmt"
-	"github.com/stefankopieczek/gossip/log"
+	log "github.com/sirupsen/logrus"
 	"sync"
 	"sync/atomic"
 )
@@ -26,7 +26,7 @@ type registry struct {
 
 func (r *registry) Set(key string, value string) error {
 	if count := r.getCurrentSize(); count > r.maxSize-1 {
-		log.Debug("Reached maximum store capacity `%d`.", r.maxSize)
+		log.Info("Reached maximum store capacity `%d`.", r.maxSize)
 		return fmt.Errorf("Reached store max size %d.", r.maxSize)
 	}
 

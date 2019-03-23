@@ -66,8 +66,7 @@ func writeResponse(err error, response KVReponse, w http.ResponseWriter) error {
 	if err != nil {
 		return err
 	}
-	_, err = w.Write(bytes)
-	if err != nil {
+	if _, err = w.Write(bytes); err != nil {
 		return err
 	}
 
@@ -125,6 +124,6 @@ func errorResponseFrom(method RequestType, request KVRequest, err error) KVRepon
 func main() {
 	http.HandleFunc("/", httpHandler)
 	if err := http.ListenAndServe(":80", nil); err != nil {
-		fmt.Printf("Couldn't start a server %#v\n", err)
+		log.Errorf("Couldn't start a server %#v\n", err)
 	}
 }
